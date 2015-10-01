@@ -1,0 +1,127 @@
+---
+title: "Homework 4"
+output: html_document
+---
+
+
+```{r}
+
+#1
+
+#a)
+a<-c(1:20) #define the variable a, and make it a vector of integers 1 to 20 with step size 1
+#b)
+class(a)
+b<-c(20:1) #define the variable b and make it a vector of integers 20 to 1 with step size 1
+#c)
+d<-c(a,b) 
+r=d[-20] #this one is giving me trouble. Can put one onto another, but that duplicates 20. Can get rid of 20 by just saying exclude the 20th term, but not sure if that is the most efficient? 
+#d)
+tmp<-c(4,	6,	3) #create variable, with vector (4, 6, 3) inside	
+a #print a. In R, assigning an object to a variable does not print it, but stating the variable does
+b #print b
+r #print
+tmp
+#e)
+rep(tmp, 10) #repeat the variable tmp 10 times back to back
+#f)
+rep(tmp, length.out=31) #repeat the variable tmp so that there are 31 numbers in the new vector. This ensures that the entire tmp repeats 10 times, and then there is one more 4 on the end
+#g)
+rep(tmp, c(10,20,30)) #repeats each individual number in tmp the number of times stated inside the new vector. So 4 repeats 10 times, 6 repeats 20 times, and 3 repeats 30 times
+
+#2
+p<-seq(3, 6, .1) #creates the variable p as the vector from 3 to 6, with step size .1
+ans<-(exp(p)*cos(p)) # creates the variable ans with each value as e^x*cos(x) of each value of p. Cos is evaluated in radians, so cos(3)=-.9899 instead of in degrees where cos(3)=.9986.
+ans #print ans
+
+#3
+
+#a)
+v<-seq(from=3, to=36, by=3) #variable with a seqence starting at 3, going up to 36, with step size of 3
+w<-seq(from=1, to=34, by=3) #variable with a seqence starting at 1, going up to 34, with step size of 3
+wow<-c((.1^v)*(.2^w)) #new variable wow is the vector of terms after this process is applied to it
+wow  #prints variable wow
+#b)
+e<-c(1:25) #creates a vector of 1 to 25 with step size 1
+cool<-c((2^e)/e) #creates variable cool, which is 2^i/i for i in e. 
+cool #prints the new vector cool
+
+#4
+
+#a)
+f<-c(1:100) #create a vector from 1 to 100 with step  size 1
+sum((f^3)+(4*(f^2))) #sum i^3 +4i^2 for each i in f, from 1 to 100
+#b)
+g<-c(1:25) #create vector from 1 to 25, with step size 1
+sum(((2^g)/g)+((3^g)/(g^2))) #again, sum over each number in g
+
+#5
+
+#a)
+paste("label", 1:3, sep=" ") #how to get commas in between, like label 1, label 2?
+#b)
+paste("fn", 1:30, sep="") #again, how to get those commas???
+
+#6
+
+set.seed(50)
+xVec <- sample(0:999, 250, replace=T) #create vector xVec
+yVec <- sample(0:999, 250, replace=T) #create vector yVec
+big<-c(2:250) #create vector big, which starts at 2 and goes to 250 with step size 1
+small<-c(1:249) #create vector small, which starts at 1 and goes to 249 with step size 1
+#a)
+yVec[big]-xVec[small] #makes y2-x1, y3-x2, etc because indexing by (2:250) and (1:249)
+#b)
+sin(yVec[small])/cos(xVec[big]) #indexing makes it sin(y1)/cos(x2), sin(y2)/cos(x3), etc.
+#c)
+one<-c(1:248)
+two<-c(2:249)
+three<-c(3:250)
+new<-c(xVec[one]+(2*xVec[two])-xVec[three]) #set new as the vector that takes the xVec at the first number of one, then two times the first number of two, minus the first number of three. 
+new #print out the number
+#d)
+sum((exp(-xVec[small])+1)/(xVec[small]+10)) #from the vectors small and big from above, use these to index xVec in the appropriate ways
+    
+
+#7
+
+#a)
+t<-which(yVec>600) #set t as the variable which holds the index positions of all yVec>600
+yVec[t] #print yVec at every t position
+#b)
+which(yVec>600) #prints the positions of yVec where yVec>600
+#c)
+xVec[t] #prints xVec at the positions in which yVec>600
+#d)
+s<-(1:length(xVec)) 
+me<-abs(xVec[s]-mean(xVec))^.5 #creates the variable me and puts in the vector of the absolute value (which is key in case xVec is less than the mean) of each value of xVec minus the mean of xVec, all to the power of 1/2.
+me #print me
+#e)
+h<-order(yVec) #set h as the variable which holds the positions of yVec for yVec in increasing order
+i<-h[1] #set i as the first positions of h, which is the position of the smallest number in yVec
+min<-yVec[i] #min is the number at the i, which then is the minimum of yVec
+min #print min
+numbers<-which(yVec<abs(min+200)) #set numbers as those positions for which yVec is less than 200+min
+yVec #print yVec for reference
+length(numbers) #the length of numbers is how many numbers are in the vector, so counts how many numbers in yVec are less than min+200
+#f)
+div<-xVec%%2==0 #set div as every number in xVec that is divisible by 2, or that has remainder 0 when divided by 2
+length(div) #length of div are how many numbers are in it, or how many numbers in xVec are divisible by 2
+#g)
+o<-order(yVec) #set o as the positions of increasing value of yVec
+xVec[o] #print xVec in the order of increasing values of yVec. So the number in the same position as the smallest number in yVec becomes the first number in xVec[o]
+#h)
+q<-seq(1, length(yVec), 3) #set q as a vector starting at 1, going to length yVec, which is 250, with step size 3
+yVec[q] #print only every 3rd position of yVec
+
+#8
+
+j<-seq(2, 38, 2) #let j be the vector from 2 to 38 with step size 2
+k<-seq(3, 39, 2) #let k be the vector from 3 to 39 with step size 2
+l<-(j/k) #let l be the vector j/k for every j,k
+l #print l
+m<-sum(1+cumprod(l)) #make m the sum of 1+ the compound product of l. so it is 1+(2/3)+(2/3)(4/5) etc. because j in the numerator is only evens and k in the denominator is only odds
+m #print m
+
+
+```
