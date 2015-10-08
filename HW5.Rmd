@@ -1,0 +1,56 @@
+---
+title: "HW5"
+output: html_document
+---
+
+```{r}
+#1. Extracts all numeric columns from a generic data frame, to apply to others. Then apply to diamonds.
+numeric.columns<-function(dataframe) #create the function numeric.columns, which takes a dataframe as an argument
+{
+  library(ggplot2) #require ggplot
+  num<- sapply(dataframe, is.numeric)#assigns the columns with numeric data to the variable num. Does this by applying the function is.numeric to diamonds dataframe to get all of the numeric columns. This tests whether they are numeric or not and returns TRUE or FALSE. It then assigns to num all the TRUE columns. Use sapply 
+  numeric<-dataframe[ ,num] #this prints the columns of the dataframe diamonds with numeric columns (num) and only those. By leaving the "rows" part of the call blank, this prints out all row values for that column. This structure could also be used to call a specific point in the dataframe, say the 2nd row of the 3rd column. 
+  return(numeric) #the function returns the data with only the numeric columns
+}
+data(diamonds) #import the diamond data
+numeric.columns(diamonds) #run the function numeric.columns on the dataframe diamonds
+
+
+
+
+#2/3. 
+g<-numeric.columns(diamonds) #Assigns the result of running the numeric.columns function on diamonds to the variable g
+d<-names(g) #the names of all the columns of g
+f<-ncol(g) #f is the number of columns in g, or the number of columns of the diamonds with numeric columns
+o<-c(1:f) #o is the variable which holds the vector from 1 to however many columns there are (in diamonds case this is 7)
+p<-combn(o,2) # p holds the all combinations of 2 of the number of columns in g. That is, since f is 7 it is the combinations of 2 of all numbers from 1 to 7. There are 7 choose 2 of these combinations, or 21 of them. These are just the combinations of numbers, however, and do not hold the column names.
+p #printout of p
+col1<-c() #defines col1 as null 
+col2<-c() #defines col2 as null
+i<-1 #defines i as 1l
+while(i<length(p)) 
+#while loop works while i, which starts at 1 and increases by 2 each time through, is less than the length of p. While p holds only 21 combinations of numbers, the length of p is double that, at 42, becuase each number is counted on its own. 
+{
+  j<-i+1 #define j as one more than i each time through
+  z<-cor(g[ ,p[i]], g[ ,p[j]])
+#the cor() function finds the Pearson Correlation Coefficient by default, though it can be set to different correlation coefficients. Here, it is calculating them between g[ ,p[i]], which is the column of g at a value of p (which is all the combinations of size 2 of 7 numbers) and g[ ,p[j]], which is the column of g at the next value of p. So, for i=3 (because i is always odd because it increases by 2 each time), and j=4, this function finds the Pearson correlation coefficient between the first column of g and the third. 
+  col2<-append(col2, values=z)# This appends each value of z, which is the pearson corr coef, to the others before it in a vector, which is necessary to get all the values in one place to make the dataframe. These are assigned to the variable col2.
+  h<-paste(d[p[i]], d[p[j]], sep="-") #here, we are concatenate the strings of the names of each of the combinations of columns, seperated by a - 
+  col1<-append(col1, values=h) #This appends each string of column names, h, to the others before it in a vector, again necessary to get all the values in one place to make the dataframe. Assigned to the variable col1.
+#These next two lines are the ones necessary for question 3.
+  u<-c(h, z) #creates the vector with all values of col1 appended together and all values of col2 appended together as its values
+  plot(g[ ,p[i]], g[ ,p[j]], xlab=d[p[i]], ylab=d[p[j]],main=u) #plot the graph. Will plot all the graphs as i moves through the while loop. Here, we are plotting each pair of variables together. So g[ ,p[i]] is the first variable in the string and g[ ,p[j]] is the second variable in the string. As i increases, i and j together represent all the possible combinations between the variables with numeric data (21 combinations possible) 
+#Here ends where is necessary for question 3 
+  
+  i<-i+2 #here, we increase i by 2 for the next time through the while loop. We increase by 2 instead of 1 because we want to consider every combination, but every other number in that combination. So making i increase by 2 considers the first number of every combination, and j becomes the second number.
+}
+data.frame(col1, col2) #prints out the dataframe with col1, the list of strings, and col2, the list of the Pearson correlation coefficients of those strings
+
+
+
+
+#3.
+  #Contained in the while loop for question 2. We define u as the vector of col1 and col2. That is, for its first value, for all i, is one of the combinations, and its second value is the Pearson correlation coeffient. Then, we plot each graph. In the first plot, we plot the first combination of the 21 combinations of 2 from 7 columns. The g[ ,p[i]] is the first column in the string, and the g[ ,p[j]] is the second column in the string. For each of these plots, the title is the vector u which was just created. So, it prints the string of the concatenated variables and then the Pearson correlation coefficient. In all, because it goes through the while loop, this will print 21 plots.
+
+```
+
