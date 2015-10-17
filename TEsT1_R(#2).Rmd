@@ -1,0 +1,97 @@
+---
+title: "TEST1_R"
+output: html_document
+---
+1. Add logical column to diamonds
+
+```{r}
+library(ggplot2) #downlaod it here. not sure if this step necessary after the first one, but it wasn't working for a little so i just went for it
+data(diamonds) #import diamonds dataframe
+data(mtcars) #import mtcars dataframe
+str(mtcars$vs) #get info about mtcars$vs, the column
+str(diamonds) #get info about diamonds dataframe
+ones<-sum(mtcars$vs) #this only works because the values are either 0 or 1, not because that's how you count occurences of a sigle value in a vector. But this is the number of 1s.
+zeros<-length(mtcars$vs)-ones #let zeros be the length minus the number of ones, which because there are only 0s and 1s is the number of 0s
+ratio<-ones/length(mtcars$vs) #ratio of 1's to the whole thing is put in variable ratio
+ones<-nrow(diamonds)*ratio #number of ones in diamonds-sized column is put into variable ones
+ones<-round(ones) #round it to get an integer 
+zeros<-nrow(diamonds)-ones #number of 0s in diamonds-sized column is the length of that column mimus the number of ones found there
+ones<-rep_len(1, ones) #ones is now the list of "ones" number of 1s
+zeros<-rep_len(0, zeros) #zeros is now the list of "zeros" number of 0s
+logcol<-c(ones, zeros)# make the variable locol as the vector of "ones" number of 1s and "zeros" number of 0s, to get a vector with length equal to the column lengths of diamonds, with a ratio of 0s and 1s equal to that in mtcars$vs
+logcol<-as.logical(logcol) #logcol is the vector of 0s and 1s as logical values, so it has the same ratio of TRUE's and FALSE's as 0s and 1s. Does this by evaluating anything that is 0 as FALSE and anything that is 1 as TRUE
+diamonds[ ,"mtcars$vs.logical"]<-logcol #add the column mtcars$vs.logical to the dataframe diamonds, and put the vector logcol in this column
+str(diamonds) #examine the new specs of the dataframe diamonds, with one added column
+
+```
+
+
+2. Extract factor and logical data from generic dataframe
+
+```{r}
+#these don't knit.... and its because factor(diamonds) and logical(diamonds) are too huge! when i took them out and tried to knit it worked perfectly
+factor<-function(dataframe){ #define a function factor with input dataframe
+  fac<-sapply(dataframe, is.factor) #assigns the factor-variable columns to the variable fac. Does this by applying is.factor to the dataframe to get all factor data. It tests whether a column is a factor or not, and assigns only the columns who return TRUE to the variable fac.
+  factor<-dataframe[ ,fac] #assigns the columns with factor-values of the dataframe to a new dataframe factor. By leaving the "rows" part of the call blank, this gathers all row values for that column. This structure could also be used to call a specific point in the dataframe, say the 2nd row of the 3rd column. 
+  return(factor) #returns factor, the new dataframe with only the factor-value columns from the orignial dataframe
+}
+factor(diamonds) #apply this function to our dataset diamonds
+
+logical<-function(dataframe){ #define a function logical with input dataframe
+  log<-sapply(dataframe, is.logical) #assigns the factor-variable columns to the variable log. Does this by applying is.logical to the dataframe to get only logical data. It tests whether a column is logical or not, and assigns only the columns who return TRUE to the variable log.
+  logical<-dataframe[ ,log] #assigns the logical-valued columns of the dataframe to a new dataframe, logical. By leaving the "rows" part of the call blank, this gathers all row values for that column. This structure could also be used to call a specific point in the dataframe, say the 2nd row of the 3rd column.
+  return(as.data.frame(logical)) #returns logical, the new dataframe with only the logical-valued columns from the original dataframe. 
+}
+
+logical(diamonds) #apply this function to our dataset diamonds
+
+str(factor(diamonds)) #test the type the function returns
+str(logical(diamonds)) #test the type the function returns.
+str(diamonds) #compare to original dataset
+
+```
+
+
+
+
+3.Plot a gray bar graph for every factor and logical variable
+
+```{r}
+
+for(i in factor(diamonds)){ #run through every variable in factor(diamonds)
+  barplot(table(i), col="gray", xlab="Variables", ylab="Instances") #create a barplot of the frequency table of values of the variables in factor(diamonds), in grey, with the x and y axes labelled Variables and Instances, respectively.
+}
+for(i in logical(diamonds)){ #run through every variable in logical(diamonds)
+  barplot(table(i), col="gray") #create a barplot of the frequency table of values of the variables in logical(diamonds), in grey, with the x and y axes labelled Variables and Instances, respectively
+}
+
+
+```
+
+
+4. List of frequency tables, one table for each categorical and logical variable in the dataframe
+
+```{r}
+#make this a function maybe?
+freq.list<-function(dataframe){
+  tab<-list() #define variable tab as an empty list
+  fac<-list() #define variable fac as an empty list
+  k<-0 #define variable k as 0
+  j<-0 #define varaible j as 0
+  for(i in 1:ncol(dataframe)){ #loop through every column in diamonds, the general dataframe
+    if(dataframe[i] %in% factor(dataframe)){ #if a column in diamonds has factor values, then it will be %in% factor(diamonds). We want only these colums
+      k<-k+1 #increase k by 1 each time we have such a column
+      fac<-table(factor(dataframe)[k])#set the variable fac as the frequency table of each column of diamonds with factor variables
+      tab[[k]]<-fac #put this variable fac into the list tab, at position k (so for the first column with factor values it will be the first value in tab, and for the second and so on)
+    } else if(dataframe[i] %in% logical(dataframe)){ #if a column in diamonds does not have factor values but has logical values, then it will move down to this command and be %in% logical(diamonds) and we will continue to this if statement. So this seperates all the columns in diamonds with logical values
+      k<-k+1 #increase k by one. This is the number of times we have come across either a factor or logical column in diamonds
+      j<-j+1 #increase j by one. This is the number of times we have come across a logical column in diamonds
+      fac<-table(logical(dataframe)[j]) #set the variable fac as the frequency of each column of diamonds with logical values. It is important to use j instead of k here, because we want to put the elements of logical(diamonds) in a frequency table by looping through them starting at 1.
+      tab[[k]]<-fac #put this variable fac into the list tab, at position k. Here, it is important to use k instead of j. Becuase j starts at 1, it would erase any previous information for the first element of tab, and so on for however many j's there were if we said tab[[j]].
+    } #end the ifelse portion
+  } #end the foor loop
+  return(tab)
+}
+freq.list(diamonds) #run this function on the dataset diamonds
+
+```
