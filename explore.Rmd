@@ -2,7 +2,7 @@
 title: "Explore"
 output: html_document
 ---
-1. its not working too well, mostly i think because column 7 takes a reaaaalllllly long time to work through. i don't know why though! and it makes everything take a long time to test. BUT the second for-loop works for all i in num. Just need to test first for loop.
+
 ```{r}
 
 #create the function explore, which takes a dataframe, a vector of bin sizes and a correlation threshold as input parameters. It then plots a pair of blue histograms(one count and one density) for each specified bin size, plots a gray bar graph for every categorical and binary variable, calculates the r^2 value for every pair of numerical values, and returns a list of 4. In this returned list there is a frequency table for every categorical and binary variable, a summary statistics table for every numerical variable, a dataframe consisting of every pair of numerical values and their corresponding r^2 value, and a dataframe consisting of every pair of numerical values and their corresponding pearson correlation coefficient. 
