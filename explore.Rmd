@@ -1,0 +1,144 @@
+---
+title: "Explore"
+output: html_document
+---
+1. its not working too well, mostly i think because column 7 takes a reaaaalllllly long time to work through. i don't know why though! and it makes everything take a long time to test. BUT the second for-loop works for all i in num. Just need to test first for loop.
+```{r}
+
+#create the function explore, which takes a dataframe, a vector of bin sizes and a correlation threshold as input parameters. It then plots a pair of blue histograms(one count and one density) for each specified bin size, plots a gray bar graph for every categorical and binary variable, calculates the r^2 value for every pair of numerical values, and returns a list of 4. In this returned list there is a frequency table for every categorical and binary variable, a summary statistics table for every numerical variable, a dataframe consisting of every pair of numerical values and their corresponding r^2 value, and a dataframe consisting of every pair of numerical values and their corresponding pearson correlation coefficient. 
+explore<-function(dataframe, vector, corr){ 
+  library(ggplot2) #loads ggplot2 into the workspce
+  
+#seperate the dataframe by column type, creating new dataframes
+  var_num <- dataframe[which(lapply(dataframe, is.numeric) == TRUE)] #numeric columns
+  var_factor <- dataframe[which(lapply(dataframe, is.factor) == TRUE)] #factor-value columns
+  var_logical <- dataframe[which(lapply(dataframe, is.logical) == TRUE)] #logical columns
+  var_faclog<-cbind(var_factor, var_logical) #create a variable var_faclog by binding the factor columns and logical columns together.
+
+
+
+#1. Creating a blue histogram(both count and density) for each numerical column
+  
+  
+  if(length(var_num)!=0){ #test that there is at least one numeric column in the dataframe
+    for(i in 1:length(var_num)){ #loop through var_num, the new dataframe with numeric columns
+      for(j in vector){ #loop through the vector of bin sizes given by the user of the function
+        counts<-ggplot(var_num, aes(x=var_num[[i]]), 
+                       environment=environment()) #create a variable counts to start the ggplot, looking at the dataframe var_num and with x variable as the values of the ith column of var_num
+        counts<-counts+geom_histogram(fill='blue', #layer counts with a histogram
+                            binwidth=j)+ #and add the variable binwidth, which is looped through the vector of given binwidths (within each ith column)
+          geom_vline(xintercept=colMeans(var_num[i]), colour='red')+ #add a vertical red line at the x-intercept of the mean of the ith column
+        labs(x=names(var_num[i]), title=paste("Binwidth: ", j)) #label the x-axis as the name of the ith column of var_num, and the main title as the jth binwidth
+        print(counts) #print this variable, which plots the graph
+        dens<-counts + aes(y=..density..) #create a variable dens which is the same as counts except that the y variable is density instead of the automatic counts
+        dens<-dens + labs(y="density") #further layer dens by naming the y-variable density
+        print(dens) #print the variable, which plots the graph
+      } #end the loop of the vector. This means that you loop through all binwidths (plotting two graphs per binwidth) before moving on to the next column in the dataframe var_num
+    } #end the loop of the dataframe. Now all plots are graphed. 
+  } else{
+    print("There are no numeric columns in the dataframe")
+  }
+
+#2. Plot a grey bar graph for every categorical and binary variable  
+  
+  
+  if(length(var_faclog)!=0){ #test that there is at least one factor or logical column in the dataframe
+    for(k in 1:length(var_faclog)){
+      pl<-ggplot(var_faclog, aes(x=var_faclog[[k]]), 
+                 environment=environment()) #HAVE NO IDEA WHY THIS DOESN'T WORK!!! It works above when you specify the diamonds dataset from the beginning, but it really realllllllllly doens't like being in a function i guess. The xlabels change, so its not that k isn't changing. it is just the graph is the "clarity" graph for all of them
+      pl<-pl+geom_bar(fill='grey')+ labs(x=names(var_faclog[k]))
+      print(pl)  
+    }
+  } else{
+    print("There are no factor or logical columns in the dataframe")
+  }
+  
+
+#3/4. They are both calculated in this long string. Since 3 jsut says calculate the r-square values, they are not printed out. They are, however, used later to put into the table of #4.  
+  
+
+  if(var_faclog!=0){ #check if there are any columns with these properties
+    freq<-table(var_faclog) #create a variable freq, which takes the freqeuncy table of var_faclog, which is var_factor and var_logical binded together
+  } else{
+    print("There are no factor or logical columns in the dataframe")
+  }
+  
+  if(var_num!=0){
+    corr_a <- cor(var_num, method="pearson") #create corr_a as the pearson correlation coefficient of the dataframe var_num with itself
+    
+    
+    #Create some data frames
+    pairs <- rep("names", 21) #create a variable pairs, which holds the list of 21 names. Creating a "blank" variable in which to put names
+    values <- rep(0.0, 21) #create a variables values, which holds the list ofo 21 0.0's. Creating a "blank" variable in which to put values
+    mydf <- data.frame(cbind(pairs, values)) #create mydf, the dataframe with pairs and values and columns
+    names(mydf)[1] <- "Pair" #name the first column "Pair"
+    names(mydf)[2] <- "Value"#name the second column "Value"
+    #Realize we only need to deal with the upper right triangle of the correlation matrix
+    
+    #Set up a threshold and null vectors before entering loop
+    threshold <- corr #this is the correlation value put in by the user
+    r_square <- NULL #define the varaibles below, but don't put anything in them
+    rsq_names <- NULL
+    corr_list <- NULL
+    corr_names <- NULL
+    
+    #Get the length of the one dimension of the square matrix
+    len <- length(corr_a[1,])
+    
+    for (i in (1:(len-1))) { #loop through the matrix of correlation coefficients, without the last one
+      for (j in ((i+1):len)) { #loop through the matrix of correlation coeffients, without the first one 
+        
+        #Form the name pair and add to the named pair vector
+        pair_name <- paste(names(corr_a[,1])[[i]],names(corr_a[1,])[[j]],sep="-") #create pair_name as the values of ith row first colum, first row jth column. Repeating this for i and j above yeilds every combination of variables without repeating any
+        rsq_names <- c(rsq_names, pair_name) #let the variable rsq_names be all these pair names together in one list
+  
+      
+  #3. Calculate the r-square value for all combinations of vectors
+        
+        
+        #Add the r_square value to the value vector
+        r_square <- c(r_square, corr_a[i,j]^2) #create variable r_square as the re-square value of every combination of variables without repeat
+        str(r_square)
+        
+        #if the threshold given by the user is exceeded, add the name and value to the
+        #respective correlation vectors
+        if (corr_a[i,j] > threshold) { #test if the correlation threshold is exceeded
+          corr_names <- c(corr_names, pair_name) #if it is add the name of the pair to corr_names
+          corr_list <- c(corr_list, corr_a[i,j]) #add the correlation coefficient itslef to corr_list
+        }
+      }
+    }
+    
+    #create the dataframes and label the columns
+    rsq_df <- data.frame(cbind(rsq_names, r_square)) #create the dataframe rsq_df as the names of the combinations of variables and thier corresponding r-square values
+    names(rsq_df)[1] <- "Pair" #name the first column Pair
+    names(rsq_df)[2] <- "Value" #name the second column Value
+    corr_df <- data.frame(cbind(corr_names, corr_list)) #create the dataframe corr_df as the names of the combinations of variables who exceeded the given correlation threshold and their corresponding correlation coefficients
+    names(corr_df)[1] <- "Pair" #name the first column Pair
+    names(corr_df)[2] <- "Value" #name the second column Value
+    numsum<-summary(var_num) #create the table numsum as the summary statistics table of all numeric values
+    four<-list(freq, numsum, rsq_df, corr_df) #create the list four, which is together the frequency table for logical and factor variables, the summary statistics table, the dataframe of combinations of numeric variables and corresponding r-square value and the dataframe of combinations numeric varaiables who exceed the given threshold and their corresponding correlation coefficients
+    str(four)
+    return(four) #return this list of four
+  } else{
+    print("There are no numeric columns in the dataframe")
+  }
+}
+
+
+library(ggplot2) #loads ggplot2 into the workspce
+data(diamonds) #creates a promise to bring Diamonds data into memory
+data(mtcars) #creates a promise to bring Mtcars data into memory
+
+diamonds$vs <- as.logical(rep(c(0,1), c(30341, 23599))) #from the previous test, I know that the ratio of zeros to ones in mtcars$vs is the same(almost, rounding is necessary because we cannot have quarter numbers) as 30341 to 23599. Therefore, we create the vector with that many zeros and ones, and forcing it into a logical composition (which says 0=FALSE and 1=TRUE) we add this column as vs to the dataset diamonds
+str(diamonds)
+explore(mtcars, c(5, 20, 50), .25) #most definitely doesn't want to work with mtcars
+/str(mtcars)
+explore(diamonds, c(5, 20, 50), .25)
+
+
+
+```
+
+
+
