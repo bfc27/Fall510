@@ -57,13 +57,13 @@ explore<-function(dataframe, vector, corr){
 #3/4. They are both calculated in this long string. Since 3 jsut says calculate the r-square values, they are not printed out. They are, however, used later to put into the table of #4.  
   
 
-  if(var_faclog!=0){ #check if there are any columns with these properties
+  if(length(var_faclog)!=0){ #check if there are any columns with these properties
     freq<-table(var_faclog) #create a variable freq, which takes the freqeuncy table of var_faclog, which is var_factor and var_logical binded together
   } else{
     print("There are no factor or logical columns in the dataframe")
   }
   
-  if(var_num!=0){
+  if(length(var_num)!=0){
     corr_a <- cor(var_num, method="pearson") #create corr_a as the pearson correlation coefficient of the dataframe var_num with itself
     
     
