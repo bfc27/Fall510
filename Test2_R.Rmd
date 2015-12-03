@@ -183,8 +183,12 @@ name2("ReSampleMean")
 
 8. Apply to diamonds$carat and faithful$eruptions
 ```{r}
-dataframe<-diamonds
-column<-'carat'
+datas<-c(abalone, diamonds, faithful)
+columns<-c('Whole_wgt', 'carat', 'eruptions')
+for(i in datas){
+  j<-j+1
+  dataframe<-i
+  column<-columns[j]
   samples<-datasamples(dataframe, column)
   plots(samples)
   mean.data<-loop(dataframe, column)
@@ -193,13 +197,12 @@ column<-'carat'
   new.data<-combine(mean.data)
   graphsample<-name2("SampleMean")
   graphresample<-name2("ReSampleMean")
-
-str(diamonds)  
-totalfunction(abalone, 'Whole_wgt')
-totalfunction(diamonds, 'carat')
-totalfunction(faithful, 'eruptions')
+}
 
 ```
+
+9. Taking many samples and taking the mean gets you a better estimate than taking just one random sample and taking the mean. When you put these means in a dataframe, you realize that they are all much closer to the actual mean than a one sample mean
+
 
 
 1. Should be 6 columns, not 5. Create functions for mean, max, etc. RANDOM SAMPLES-set a seed-->what is that? is that included in the code above?
