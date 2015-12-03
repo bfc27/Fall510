@@ -18,6 +18,7 @@ ones<-round(ones) #round it to get an integer
 zeros<-nrow(diamonds)-ones #number of 0s in diamonds-sized column is the length of that column mimus the number of ones found there
 ones<-rep_len(1, ones) #ones is now the list of "ones" number of 1s
 zeros<-rep_len(0, zeros) #zeros is now the list of "zeros" number of 0s
+nrow(diamonds)
 logcol<-c(ones, zeros)# make the variable locol as the vector of "ones" number of 1s and "zeros" number of 0s, to get a vector with length equal to the column lengths of diamonds, with a ratio of 0s and 1s equal to that in mtcars$vs
 logcol<-as.logical(logcol) #logcol is the vector of 0s and 1s as logical values, so it has the same ratio of TRUE's and FALSE's as 0s and 1s. Does this by evaluating anything that is 0 as FALSE and anything that is 1 as TRUE
 diamonds[ ,"mtcars$vs.logical"]<-logcol #add the column mtcars$vs.logical to the dataframe diamonds, and put the vector logcol in this column

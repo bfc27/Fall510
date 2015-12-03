@@ -11,7 +11,7 @@ output: html_document
 #a)
 a<-c(1:20) #define the variable a, and make it a vector of integers 1 to 20 with step size 1
 #b)
-class(a)
+str(a)
 b<-c(20:1) #define the variable b and make it a vector of integers 20 to 1 with step size 1
 #c)
 d<-c(a,b) 

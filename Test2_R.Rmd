@@ -1,0 +1,213 @@
+---
+title: "Test2"
+output: html_document
+---
+
+
+Load and rename the Abalone data
+```{r}
+####THIS IS TAKEN FROM R_DATA_ANALYSIS.RMD
+# UCI is a great resource for datasets. Here's an example of how to 
+# retrieve the Abalone data
+uciaddress <- "http://archive.ics.uci.edu/ml/machine-learning-databases/"
+dataset <- "abalone/abalone.data"
+getdataset <- paste(uciaddress, dataset, sep="")
+abalone <- read.csv(getdataset)
+colnames(abalone) <- c("Gender","Length","Diameter",
+                       "Height", "Whole_wgt",
+                       "Shucked_wgt", "Viscera wgt",
+                       "Shell wgt", "Rings")
+
+```
+
+1. Get a dataset of the sample sizes of 1%, 10%, 25%, 50%, 80%, and 100%
+```{r}
+
+SampleSummary = function(dataframe,column,n){    #Create the function SampleSummary that takes a dataframe, column name, sample size and 
+  new<-as.integer(nrow(dataframe)*n) #create the variable new as the the integer the percent of the dataframe
+  number<-grep(column, colnames(dataframe)) #aasign to the new varaible number the index of the column
+  dat<-dataframe[sample(nrow(dataframe), new),number]
+  min<-min(dat) #get the min of the sample
+  max<-max(dat)#get the max of the sample
+  mean<-mean(dat)#get the mean of the sample
+  var<-var(dat)#get the variance of the sample
+  new.data<-data.frame(min, max, mean, var) #create new dataframe
+  return(new.data)
+} #return the new dataframe with 1 column and 4 variables
+
+
+#function to get the dataframe samples, which has defined rows and columns and contains the min, max, mean and var (as rows) for each of the sample sizes(as columns)
+
+datasamples<-function(dataframe, column){
+  j<-1
+  df<-data.frame(matrix(NA, nrow=4,ncol=6))
+  for(n in c(.01, .10, .25, .5, .8, 1)){
+  first<-SampleSummary(dataframe,column, n)
+  df[j]<-as.numeric(first)
+  j<-j+1
+  }
+rownames(df)<-c("SampleMin", "SampleMax", "SampleMean", "SampleVar")
+colnames(df)<-c(".01", ".10", ".25", ".50", ".80", "1.00")
+return(df)
+}
+samples<-datasamples(abalone, 'Whole_wgt') 
+str(samples)
+```
+
+
+2. Create a grid of histograms with all sample sizes
+```{r}
+#function plots that takes in a dataframe and returns a grid of histograms, colored per varaible
+library(ggplot2)
+require(grid)
+require(gridExtra)
+plots<-function(dataframe){
+  j<-0
+  i<-0
+  plots<-c()
+  for(i in 1:6){
+    j<-j+1
+    name<-ggplot(dataframe, aes(x=dataframe[[i]], fill=factor(rownames(dataframe))), environment=environment())
+    name<-name+geom_histogram(binwidth=.05)+
+      labs(x="Color") + labs(title=paste(colnames(dataframe)[j], "SampleHist" , sep="_"))+ theme(legend.title=element_blank())
+    plotname<-paste(colnames(samples)[j], 'Sample', sep='_')
+    plots[[plotname]]<-name
+  }
+histos<-do.call(grid.arrange, plots)
+return(histos)
+}
+plots(dataframe=samples)
+
+
+```
+
+
+3. Loop of 1,000
+```{r}
+loop<-function(dataframe, column){
+  mean.data<-data.frame("1%"=rep(0,1000), "10%"=rep(0,1000), "25%"=rep(0,1000), "50%"=rep(0,1000), "80%"=rep(0,1000))
+k<-0
+  for(i in c(.01, .1, .25, .5, .8)){ #here is where it makes it much easier to just have the 100% sample too
+    row<-rep(0,1000)
+    for(j in 1:1000){
+      new<-SampleSummary(dataframe, column, i)$mean
+      row[j]<-new
+      
+    }
+    k<-k+1
+    mean.data[k]<-row
+  }
+  colnames(mean.data)<-c(".01", ".10", ".25", ".50", ".80")
+  str(mean.data)
+  return(mean.data)
+}
+mean.data<-loop(abalone, 'Whole_wgt')
+
+
+```
+
+4. Histogram of means from the samples above and the 100% sample
+```{r}
+
+#this takes a reeeaaaaalllllly long time
+addhundop<-function(df1, df2, column){
+  number<-grep(column, colnames(df2))
+  hundred<-rep(mean(df2[,number]), 1000)
+  df1["1.00"]<-hundred
+  return(df1)
+}
+mean.data<-addhundop(mean.data, abalone, 'Whole_wgt')
+
+
+plots(mean.data) #i'm not sure this is entirely correct...... there is only one variable for each sample, true, but what is with the changing colors then? is it really only supposed to be one bar?
+
+```
+
+5. Min, Max, Mean and Var for dataframe from #3 (mean.data) 
+```{r}
+
+#NOT SURE IF I NEED TO APPEND ROWS OR COLUMNS.....
+combine<-function(data){
+  mean.summary<-data.frame(matrix(NA, nrow=4, ncol=6))
+  j<-1
+  for(i in colnames(mean.data)){
+    first<-SampleSummary(mean.data, i, 1) #n=1 because we want the whole of each column
+    mean.summary[j]<-as.numeric(first)
+    j<-j+1
+  }
+  colnames(mean.summary)<-c(".01", ".10", ".25", ".50", ".80", "1.00")
+  rownames(mean.summary)<-c("ReSampleMin", "ReSampleMax", "ReSampleMean", "ReSampleVar")
+  new.data<-rbind(samples, mean.summary)
+  return(new.data)
+}
+new.data<-combine(mean.data)
+str(new.data)
+rownames(new.data)
+
+```
+
+6. Histogram of 100% data with SampleMean data overlayed
+```{r}
+library(quadprog)
+library(directlabels)
+library(grid)
+#STILL NEED TO LABEL EACH VERITCAL LINE, AND COLOR CODE INDIVIDUAL VARIABLES
+
+#plot the 100% data
+name2<-function(column){
+  name2<-NULL
+  name2<-ggplot(new.data, aes(x=new.data[[6]], fill=factor(rownames(new.data))),     environment=environment())
+  name2<-name2+geom_histogram(binwidth=.05)+
+    labs(x="Color") + labs(title="100% Sample Histogram")
+for(i in seq(2:ncol(new.data))){ 
+    name2<-name2+geom_vline(xintercept=new.data[column, i], colour='black') + annotate("text",x=new.data[column, i],y=i, label=colnames(new.data)[i], hjust=0) + theme(legend.title=element_blank())
+}
+  return(name2)
+}
+name2("SampleMean")
+direct.label(name)
+name2("SampleMean")
+new.data["SampleMean",1]
+resample<-str(colnames(new.data["ReSampleMean",]))
+resample
+samp<-new.data["SampleMean", ]
+```
+
+
+7. Histogram of 100% data with ReSampleMean data overlayed
+```{r}
+name2("ReSampleMean")
+
+```
+
+
+8. Apply to diamonds$carat and faithful$eruptions
+```{r}
+dataframe<-diamonds
+column<-'carat'
+  samples<-datasamples(dataframe, column)
+  plots(samples)
+  mean.data<-loop(dataframe, column)
+  mean.data<-addhundop(mean.data, dataframe, column)
+  plots(mean.data)
+  new.data<-combine(mean.data)
+  graphsample<-name2("SampleMean")
+  graphresample<-name2("ReSampleMean")
+
+str(diamonds)  
+totalfunction(abalone, 'Whole_wgt')
+totalfunction(diamonds, 'carat')
+totalfunction(faithful, 'eruptions')
+
+```
+
+
+1. Should be 6 columns, not 5. Create functions for mean, max, etc. RANDOM SAMPLES-set a seed-->what is that? is that included in the code above?
+2. Create function for histogram
+3. new dataframe has 5 columns, with 1000 rows. Each row is the mean you calculate from the % sample.
+4. Reuse function from #2
+5. 
+6. vertical line
+7. 
+8. 
+9. 
