@@ -204,13 +204,3 @@ for(i in datas){
 9. Taking many samples and taking the mean gets you a better estimate than taking just one random sample and taking the mean. When you put these means in a dataframe, you realize that they are all much closer to the actual mean than a one sample mean
 
 
-
-1. Should be 6 columns, not 5. Create functions for mean, max, etc. RANDOM SAMPLES-set a seed-->what is that? is that included in the code above?
-2. Create function for histogram
-3. new dataframe has 5 columns, with 1000 rows. Each row is the mean you calculate from the % sample.
-4. Reuse function from #2
-5. 
-6. vertical line
-7. 
-8. 
-9. 
