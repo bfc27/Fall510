@@ -53,6 +53,8 @@ cool #prints the new vector cool
 #a)
 f<-c(1:100) #create a vector from 1 to 100 with step  size 1
 sum((f^3)+(4*(f^2))) #sum i^3 +4i^2 for each i in f, from 1 to 100
+# SW: lost points: sum is over i = 10:100, not 1:100
+
 #b)
 g<-c(1:25) #create vector from 1 to 25, with step size 1
 sum(((2^g)/g)+((3^g)/(g^2))) #again, sum over each number in g
@@ -63,6 +65,7 @@ sum(((2^g)/g)+((3^g)/(g^2))) #again, sum over each number in g
 paste("label", 1:30, sep=" ") #how to get commas in between, like label 1, label 2?
 #b)
 paste("fn", 1:30, sep="") #again, how to get those commas???
+# SW: here, you can use paste0()
 
 #6
 
@@ -85,7 +88,8 @@ new<-c(xVec[one]+(2*xVec[two])-xVec[three]) #set new as the vector that takes th
 new #print out the number
 #d)
 sum((exp(-xVec[small])+1)/(xVec[small]+10)) #from the vectors small and big from above, use these to index xVec in the appropriate ways
-    
+# SW: lost points: wrong calculation, the numerator is exp(-x[i + 1]), 
+# not exp(-x[i]) + 1
 
 #7
 
@@ -104,9 +108,16 @@ me #print me
 max<-max(yVec) #set variable max as the max of the yVec vector
 numbers<-which(yVec<abs(max-200)) #set numbers as those positions for which yVec is less than 200+min
 length(numbers) #the length of numbers is how many numbers are in the vector, so counts how many numbers in yVec are less than min+200
+# SW: lost points: the question is how many elements of yVec are _within_ 
+# 200 of the max, not how many are less than the max minus 200
+length(yVec[abs(yVec - max(yVec)) <= 200])
+
 #f)
 div<-xVec%%2==0 #set div as every number in xVec that is divisible by 2, or that has remainder 0 when divided by 2
 length(div) #length of div are how many numbers are in it, or how many numbers in xVec are divisible by 2
+# SW: lost points: look at the vector, the value FALSE still has positive length
+sum(xVec %% 2 == 0)
+
 #g)
 o<-order(yVec) #set o as the positions of increasing value of yVec
 xVec[o] #print xVec in the order of increasing values of yVec. So the number in the same position as the smallest number in yVec becomes the first number in xVec[o]
@@ -121,6 +132,7 @@ k<-seq(3, 39, 2) #let k be the vector from 3 to 39 with step size 2
 l<-(j/k) #let l be the vector j/k for every j,k
 m<-sum(1+cumprod(l)) #make m the sum of 1+ the compound product of l. so it is 1+(2/3)+(2/3)(4/5) etc. because j in the numerator is only evens and k in the denominator is only odds
 m #print m
-
-
+# SW: lost points: the summand is not correct, you are adding 1 to _every_ 
+# element of the vector, but you should add it just once
+sum(c(1,cumprod(seq(2, 38, 2) / seq(3, 39, 2))))
 ```
