@@ -4,10 +4,14 @@ output: html_document
 ---
 
 ```{r}
+# SW: great job
+
 #1. Extracts all numeric columns from a generic data frame, to apply to others. Then apply to diamonds.
 numeric.columns<-function(dataframe) #create the function numeric.columns, which takes a dataframe as an argument
 {
   library(ggplot2) #require ggplot
+  # SW: you don't actually need ggplot2 within this function
+  
   num<- sapply(dataframe, is.numeric)#assigns the columns with numeric data to the variable num. Does this by applying the function is.numeric to diamonds dataframe to get all of the numeric columns. This tests whether they are numeric or not and returns TRUE or FALSE. It then assigns to num all the TRUE columns. Use sapply 
   numeric<-dataframe[ ,num] #this prints the columns of the dataframe diamonds with numeric columns (num) and only those. By leaving the "rows" part of the call blank, this prints out all row values for that column. This structure could also be used to call a specific point in the dataframe, say the 2nd row of the 3rd column. 
   return(numeric) #the function returns the data with only the numeric columns
