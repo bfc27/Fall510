@@ -3,6 +3,8 @@ title: "Explore"
 output: html_document
 ---
 
+SW: nice job. a few things to consider: (1) in `mtcars`, the variables `am` and `vs` are of type numeric, but they represent logical values. the assignment implies that you will encounter (and need to handle) binary variables, so you lost a few points for this. (2) you have implemented `explore` to take a vector of bin widths, you might also want to accept a vector of bin numbers. (3) you need to consider the absolute value of the correlation coefficient; right now, you're only returning positive values.
+
 ```{r}
 
 #create the function explore, which takes a dataframe, a vector of bin sizes and a correlation threshold as input parameters. It then plots a pair of blue histograms(one count and one density) for each specified bin size, plots a gray bar graph for every categorical and binary variable, calculates the r^2 value for every pair of numerical values, and returns a list of 4. In this returned list there is a frequency table for every categorical and binary variable, a summary statistics table for every numerical variable, a dataframe consisting of every pair of numerical values and their corresponding r^2 value, and a dataframe consisting of every pair of numerical values and their corresponding pearson correlation coefficient. 
@@ -58,8 +60,10 @@ explore<-function(dataframe, vector, corr){
   
 
   if(length(var_faclog)!=0){ #check if there are any columns with these properties
+    # SW: if this variable is never created, then a subsequent call will fail
     freq<-table(var_faclog) #create a variable freq, which takes the freqeuncy table of var_faclog, which is var_factor and var_logical binded together
   } else{
+    freq <- NA # SW: to make the subsequent call work
     print("There are no factor or logical columns in the dataframe")
   }
   
@@ -133,7 +137,7 @@ data(mtcars) #creates a promise to bring Mtcars data into memory
 diamonds$vs <- as.logical(rep(c(0,1), c(30341, 23599))) #from the previous test, I know that the ratio of zeros to ones in mtcars$vs is the same(almost, rounding is necessary because we cannot have quarter numbers) as 30341 to 23599. Therefore, we create the vector with that many zeros and ones, and forcing it into a logical composition (which says 0=FALSE and 1=TRUE) we add this column as vs to the dataset diamonds
 str(diamonds)
 explore(mtcars, c(5, 20, 50), .25) #most definitely doesn't want to work with mtcars
-/str(mtcars)
+#str(mtcars)
 explore(diamonds, c(5, 20, 50), .25)
 
 
